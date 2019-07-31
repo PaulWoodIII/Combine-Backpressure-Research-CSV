@@ -33,6 +33,7 @@ class NameImporter {
       let stream = InputStream(data: data)
       let reader = try CSVReader(stream: stream,
                                  hasHeaderRow: true)
+      // Sequence and Iterable helps us create a reactive state machine to Demand. Each requested element triggers a state transition and computation of the next returned value.
       return Publishers.Sequence(sequence: reader)
         .buffer(size: 1, //Play with this value some
                 prefetch: .keepFull, // you can play with this as well
@@ -52,7 +53,6 @@ enum NameFile: String, CaseIterable {
   var type: String { "txt" }
   
   case test
-  //TODO: Add More cases
   case yob1880
   case yob1881
   case yob1882

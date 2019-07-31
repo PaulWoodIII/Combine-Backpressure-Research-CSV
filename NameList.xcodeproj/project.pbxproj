@@ -19,6 +19,7 @@
 		3C14CC0F22F1B9BF00250058 /* NameType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14CC0E22F1B9BF00250058 /* NameType.swift */; };
 		3C23A3EA22F2250500BA5F69 /* Documentation in Resources */ = {isa = PBXBuildFile; fileRef = 3C23A3E922F2250500BA5F69 /* Documentation */; };
 		3C23A3EC22F233CD00BA5F69 /* SlowSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A3EB22F233CD00BA5F69 /* SlowSink.swift */; };
+		3C23A3EE22F243FA00BA5F69 /* Fixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A3ED22F243FA00BA5F69 /* Fixtures.swift */; };
 		3CFD0E0822F2094500B08077 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 3CFD0E0722F2094400B08077 /* README.md */; };
 /* End PBXBuildFile section */
 
@@ -48,6 +49,7 @@
 		3C14CC0E22F1B9BF00250058 /* NameType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameType.swift; sourceTree = "<group>"; };
 		3C23A3E922F2250500BA5F69 /* Documentation */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Documentation; sourceTree = "<group>"; };
 		3C23A3EB22F233CD00BA5F69 /* SlowSink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SlowSink.swift; path = "../../../../../../System/Volumes/Data/Users/paulwood/projects/CSVIdeas/Combine-Backpressure-Research-CSV/NameListTests/SlowSink.swift"; sourceTree = "<group>"; };
+		3C23A3ED22F243FA00BA5F69 /* Fixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Fixtures.swift; path = "../../../../../../System/Volumes/Data/Users/paulwood/projects/CSVIdeas/Combine-Backpressure-Research-CSV/NameListTests/Fixtures.swift"; sourceTree = "<group>"; };
 		3CFD0E0722F2094400B08077 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -120,6 +122,7 @@
 				3C14CBFE22F1B98C00250058 /* NameListTests.swift */,
 				3C23A3EB22F233CD00BA5F69 /* SlowSink.swift */,
 				3C14CC0022F1B98C00250058 /* Info.plist */,
+				3C23A3ED22F243FA00BA5F69 /* Fixtures.swift */,
 			);
 			path = NameListTests;
 			sourceTree = "<group>";
@@ -247,6 +250,7 @@
 			files = (
 				3C14CBFF22F1B98C00250058 /* NameListTests.swift in Sources */,
 				3C23A3EC22F233CD00BA5F69 /* SlowSink.swift in Sources */,
+				3C23A3EE22F243FA00BA5F69 /* Fixtures.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
