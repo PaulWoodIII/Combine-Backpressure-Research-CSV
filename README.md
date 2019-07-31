@@ -1,6 +1,6 @@
 # Combine Backpressure Research CSV
 
-![](Documentation/BackpressureIllustrated.png)
+![](Documentation/BackpressureIllustratedText.png)
 
 I wrapped a csv file reader (using CSV.swift) to slowly enumerate all the values in a CSV file using backpressure.  Please start with the unit test as the UI is rather trivial and doesn't "do" much more than display a List.
 
@@ -24,9 +24,9 @@ A blogpost to accompany this project can be found [on my website](http://www.pau
 
 Checkout these Combine projects that have helped me learn the framework
 
-- (Open Combine)[ https://github.com/broadwaylamb/OpenCombine]
-- (Entwine) [https://github.com/tcldr/Entwine]
-- (Using Combine) [https://heckj.github.io/swiftui-notes/]
+- [Open Combine](https://github.com/broadwaylamb/OpenCombine)
+- [Entwine](https://github.com/tcldr/Entwine)
+- [Using Combine](https://heckj.github.io/swiftui-notes/)
 
 ### Known Issues
 
