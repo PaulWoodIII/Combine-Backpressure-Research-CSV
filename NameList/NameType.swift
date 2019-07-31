@@ -20,9 +20,7 @@ struct NameType {
   }
 }
 
-extension NameType: Equatable {
-  
-}
+extension NameType: Equatable {}
 
 extension NameType: CustomStringConvertible {
   var description: String {

@@ -1,5 +1,7 @@
 # Combine Backpressure Research CSV
 
+![](Documentation/BackpressureIllustrated.png)
+
 I wrapped a csv file reader (using CSV.swift) to slowly enumerate all the values in a CSV file using backpressure. 
 
 Some breakpoints are shared to help demonstrate when certain functionas are called using backpressure.

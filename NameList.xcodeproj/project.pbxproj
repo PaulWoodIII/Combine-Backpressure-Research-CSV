@@ -17,6 +17,7 @@
 		3C14CC0B22F1B9A000250058 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 3C14CC0A22F1B9A000250058 /* CSV */; };
 		3C14CC0D22F1B9B300250058 /* NameImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14CC0C22F1B9B300250058 /* NameImporter.swift */; };
 		3C14CC0F22F1B9BF00250058 /* NameType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14CC0E22F1B9BF00250058 /* NameType.swift */; };
+		3C23A3EA22F2250500BA5F69 /* Documentation in Resources */ = {isa = PBXBuildFile; fileRef = 3C23A3E922F2250500BA5F69 /* Documentation */; };
 		3CFD0E0822F2094500B08077 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 3CFD0E0722F2094400B08077 /* README.md */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +45,7 @@
 		3C14CC0022F1B98C00250058 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3C14CC0C22F1B9B300250058 /* NameImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameImporter.swift; sourceTree = "<group>"; };
 		3C14CC0E22F1B9BF00250058 /* NameType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameType.swift; sourceTree = "<group>"; };
+		3C23A3E922F2250500BA5F69 /* Documentation */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Documentation; sourceTree = "<group>"; };
 		3CFD0E0722F2094400B08077 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -70,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				3CFD0E0722F2094400B08077 /* README.md */,
+				3C23A3E922F2250500BA5F69 /* Documentation */,
 				3C14CBE622F1B98B00250058 /* NameList */,
 				3C14CBFD22F1B98C00250058 /* NameListTests */,
 				3C14CBE522F1B98B00250058 /* Products */,
@@ -208,6 +211,7 @@
 				3C14CBF422F1B98C00250058 /* LaunchScreen.storyboard in Resources */,
 				3C14CBF122F1B98C00250058 /* Preview Assets.xcassets in Resources */,
 				3CFD0E0822F2094500B08077 /* README.md in Resources */,
+				3C23A3EA22F2250500BA5F69 /* Documentation in Resources */,
 				3C14CBEE22F1B98C00250058 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
