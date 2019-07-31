@@ -12,12 +12,13 @@ What would happen if the Buffer's size was larger in NameImporter.swift line 37?
 
 Consider accumulating the names received and applying an algorithm that works on all previous names.
 
-- If given a Data set where the count was not in decending order Femals then Decending order Males, group the names and keep a list of Names in order based on count
-- Use the Names recived to create a Try
+- If given a Data set where the count was not in decending order Female names then decending order of Male names, group the names and keep a list of names in order based on count
+- Use the Names received to create a Try
+- Add the names to a CoreData Model 
 
-Things moving to fast in the `NameListTests.testBackpressure()` ? just increase the UInt in `usleep(#)`
+Things moving too fast in the `NameListTests.testBackpressure()` ? just increase the UInt in `usleep(#)` 
 
-### Issues
+### Known Issues
 
 The CSVReader seems to skip the first element in the CSV file when enumerated so I wrote an empty line of data to get what I expected. I'd appreciate some help and feedback on that
 
