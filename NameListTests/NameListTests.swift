@@ -102,8 +102,11 @@ public final class SlowSink<Input, Failure: Error>
   }
   
   public func receive(_ value: Input) -> Subscribers.Demand {
+    // What happens if this defer is removed?
     defer {
-      usleep(1000)
+      usleep(1000) // Increase or decrease for more of a delay
+      // Also don't think something like this should be in production code
+      // consider this some kind of work that needs to be done
     }
     receiveValue(value)
     return Subscribers.Demand.max(1)
