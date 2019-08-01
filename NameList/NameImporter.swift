@@ -20,7 +20,7 @@ class NameImporter {
   
   func importFrom(file: NameFile) -> AnyPublisher<NameType, NameImportError> {
     guard let asset = NSDataAsset(name: file.rawValue) else {
-      return Empty().eraseToAnyPublisher()
+      return Empty(completeImmediately: true).eraseToAnyPublisher()
     }
     return importFrom(data: asset.data)
   }
@@ -34,14 +34,16 @@ class NameImporter {
       let reader = try CSVReader(stream: stream,
                                  hasHeaderRow: true)
       // Sequence and Iterable helps us create a reactive state machine to Demand. Each requested element triggers a state transition and computation of the next returned value.
-      return Publishers.Sequence(sequence: reader)
+      return Publishers
+        .Sequence(sequence: reader)
         .buffer(size: 1, //Play with this value some
                 prefetch: .keepFull, // you can play with this as well
                 whenFull: Publishers.BufferingStrategy.customError{return .bufferOverflow})
         .map { row -> NameType in
           let name = NameType(row[0], row[1], Int(row[2])!)
           return name
-        }.eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     } catch {
       return Fail(error: .csvError(error as! CSVError)).eraseToAnyPublisher()
     }
