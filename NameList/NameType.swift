@@ -20,7 +20,13 @@ struct NameType {
   }
 }
 
-extension NameType: Equatable {}
+extension NameType: Equatable, Hashable {
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(name)
+    hasher.combine(gender)
+    hasher.combine(count)
+  }
+}
 
 extension NameType: CustomStringConvertible {
   var description: String {

@@ -10,42 +10,26 @@ import SwiftUI
 
 struct ContentView: View {
   
-  let names: [NameType] = {
-    var names: [NameType]!
-    _ = NameImporter().importFrom(file: .test)
-      .scan([NameType](), { (namesSoFar, currentName) -> [NameType] in
-        return namesSoFar + [currentName]
-      })
-      .map {
-        return $0.sorted { (left, right) -> Bool in
-            return left.count > right.count
-        }
-      }
-      .replaceError(with: [])
-      .sink{ n in
-        names = n
-      }
-    return names
-  }()
+  @ObservedObject var provider = NameProvider()
   
-    var body: some View {
-      NavigationView {
-        VStack {
-          Text("Some Top Names from 1880").font(.title).lineLimit(nil)
-          Text("Provided by Data.gov and Social Security records").font(.subheadline).lineLimit(nil)
-          List(names) { name in
-            HStack {
-              VStack(alignment: .leading) {
-                Text(name.name).font(.headline)
-                Text("\(name.gender == "F" ? "👩" : "👨")").font(.caption)
-              }
-              Spacer()
-              Text("\(name.count)")
+  var body: some View {
+    NavigationView {
+      VStack {
+        Text("Some Top Names from 1880").font(.title).lineLimit(nil)
+        Text("Provided by Data.gov and Social Security records").font(.subheadline).lineLimit(nil)
+        List(provider.displayNames) { name in
+          HStack {
+            VStack(alignment: .leading) {
+              Text(name.name).font(.headline)
+              Text("\(name.gender == "F" ? "👩" : "👨")").font(.caption)
             }
+            Spacer()
+            Text("\(name.count)")
           }
         }
       }
     }
+  }
 }
 
 extension NameType: Identifiable {
@@ -56,8 +40,8 @@ extension NameType: Identifiable {
 
 #if DEBUG
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+  static var previews: some View {
+    ContentView()
+  }
 }
 #endif
