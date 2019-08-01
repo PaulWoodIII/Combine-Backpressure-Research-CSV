@@ -34,10 +34,13 @@ struct ContentView: View {
           Text("Some Top Names from 1880").font(.title).lineLimit(nil)
           Text("Provided by Data.gov and Social Security records").font(.subheadline).lineLimit(nil)
           List(names) { name in
-            HStack{
-              Text("Name: \(name.name)")
-              Text("Gender: \(name.gender)")
-              Text("Count: \(name.count)")
+            HStack {
+              VStack(alignment: .leading) {
+                Text(name.name).font(.headline)
+                Text("\(name.gender == "F" ? "👩" : "👨")").font(.caption)
+              }
+              Spacer()
+              Text("\(name.count)")
             }
           }
         }
