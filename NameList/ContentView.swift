@@ -13,11 +13,18 @@ struct ContentView: View {
   let names: [NameType] = {
     var names: [NameType]!
     _ = NameImporter().importFrom(file: .test)
-      .collect()
+      .scan([NameType](), { (namesSoFar, currentName) -> [NameType] in
+        return namesSoFar + [currentName]
+      })
+      .map {
+        return $0.sorted { (left, right) -> Bool in
+            return left.count > right.count
+        }
+      }
       .replaceError(with: [])
       .sink{ n in
-      names = n
-    }
+        names = n
+      }
     return names
   }()
   
