@@ -13,11 +13,18 @@ struct ContentView: View {
   let names: [NameType] = {
     var names: [NameType]!
     _ = NameImporter().importFrom(file: .test)
-      .collect()
+      .scan([NameType](), { (namesSoFar, currentName) -> [NameType] in
+        return namesSoFar + [currentName]
+      })
+      .map {
+        return $0.sorted { (left, right) -> Bool in
+            return left.count > right.count
+        }
+      }
       .replaceError(with: [])
       .sink{ n in
-      names = n
-    }
+        names = n
+      }
     return names
   }()
   
@@ -27,10 +34,13 @@ struct ContentView: View {
           Text("Some Top Names from 1880").font(.title).lineLimit(nil)
           Text("Provided by Data.gov and Social Security records").font(.subheadline).lineLimit(nil)
           List(names) { name in
-            HStack{
-              Text("Name: \(name.name)")
-              Text("Gender: \(name.gender)")
-              Text("Count: \(name.count)")
+            HStack {
+              VStack(alignment: .leading) {
+                Text(name.name).font(.headline)
+                Text("\(name.gender == "F" ? "👩" : "👨")").font(.caption)
+              }
+              Spacer()
+              Text("\(name.count)")
             }
           }
         }
