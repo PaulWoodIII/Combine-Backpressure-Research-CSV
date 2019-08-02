@@ -30,6 +30,6 @@ struct AppEnvironment: ViewModifier {
 
 extension View {
   func appEnvironment() -> some View {
-    Modified(content: self, modifier: AppEnvironment())
+    ModifiedContent(content: self, modifier: AppEnvironment())
   }
 }

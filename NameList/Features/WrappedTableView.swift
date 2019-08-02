@@ -27,17 +27,23 @@ class NameTableCoordinator: NSObject, NSFetchedResultsControllerDelegate {
   
   func setup(collectionView: UICollectionView) {
     
-    let ds = UICollectionViewDiffableDataSourceReference(collectionView: collectionView) { (collectionView, indexPath, someObject) -> UICollectionViewCell? in
-      var cell = collectionView.dequeueReusableCell(withReuseIdentifier: NameCollectionViewCell.reuseIdentifier, for: indexPath) as! NameCollectionViewCell
+    let ds = UICollectionViewDiffableDataSourceReference(
+      collectionView: collectionView
+    ) { (collectionView, indexPath, someObject) -> UICollectionViewCell? in
+      let cell = collectionView.dequeueReusableCell(
+        withReuseIdentifier: NameCollectionViewCell.reuseIdentifier,
+        for: indexPath) as! NameCollectionViewCell
       let moc = self.provider.persistentContainer.viewContext
       guard let moID = someObject as? NSManagedObjectID,
         let name = try? moc.existingObject(with: moID) as? Name else {
-        return cell
+          return cell
       }
-      cell.textLabel.text = name.name
+      cell.nameLabel.text = name.name
+      cell.genderLabel.text = name.gender == "F" ? "👧" : "👦"
+      cell.countLabel.text = "\(name.count)"
       return cell
     }
-        
+    
     collectionView.dataSource = ds
     self.dataSource = ds
   }
@@ -78,19 +84,19 @@ struct WrappedTableView: UIViewRepresentable {
   }
   
   private func createLayout() -> UICollectionViewLayout {
-      let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                           heightDimension: .fractionalHeight(1.0))
-      let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-      let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                            heightDimension: .absolute(44))
-      let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
-                                                       subitems: [item])
-
-      let section = NSCollectionLayoutSection(group: group)
-
-      let layout = UICollectionViewCompositionalLayout(section: section)
-      return layout
+    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                          heightDimension: .fractionalHeight(1.0))
+    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+    
+    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                           heightDimension: .estimated(44))
+    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
+                                                   subitems: [item])
+    
+    let section = NSCollectionLayoutSection(group: group)
+    
+    let layout = UICollectionViewCompositionalLayout(section: section)
+    return layout
   }
 }
 

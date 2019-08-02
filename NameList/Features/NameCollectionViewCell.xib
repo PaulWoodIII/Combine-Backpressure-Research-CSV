@@ -22,19 +22,37 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WMg-qO-nva">
+                        <rect key="frame" x="333" y="15" width="42" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xeS-4W-hE8">
+                        <rect key="frame" x="72" y="15" width="42" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
             </view>
             <color key="backgroundColor" systemColor="secondarySystemGroupedBackgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
+                <constraint firstItem="WMg-qO-nva" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="xeS-4W-hE8" secondAttribute="trailing" constant="20" id="5jz-ks-wei"/>
                 <constraint firstItem="z1K-xl-gvb" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="15" id="71n-3K-4FP"/>
+                <constraint firstAttribute="trailing" secondItem="WMg-qO-nva" secondAttribute="trailing" constant="20" id="Azy-cU-NAw"/>
+                <constraint firstItem="WMg-qO-nva" firstAttribute="firstBaseline" secondItem="z1K-xl-gvb" secondAttribute="firstBaseline" id="LwP-QR-VLh"/>
                 <constraint firstItem="z1K-xl-gvb" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="LzH-qk-2cy"/>
-                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="z1K-xl-gvb" secondAttribute="trailing" constant="20" id="RCv-9K-aNJ"/>
+                <constraint firstItem="xeS-4W-hE8" firstAttribute="leading" secondItem="z1K-xl-gvb" secondAttribute="trailing" constant="10" id="MyK-cB-1iw"/>
+                <constraint firstItem="xeS-4W-hE8" firstAttribute="firstBaseline" secondItem="z1K-xl-gvb" secondAttribute="firstBaseline" id="WYV-BF-j4m"/>
                 <constraint firstAttribute="bottom" secondItem="z1K-xl-gvb" secondAttribute="bottom" constant="14" id="d0P-3w-jge"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <size key="customSize" width="395" height="50"/>
             <connections>
-                <outlet property="textLabel" destination="z1K-xl-gvb" id="rK0-Em-AAd"/>
+                <outlet property="countLabel" destination="WMg-qO-nva" id="hOc-H0-a8D"/>
+                <outlet property="genderLabel" destination="z1K-xl-gvb" id="25Z-9O-SeM"/>
+                <outlet property="nameLabel" destination="xeS-4W-hE8" id="fCK-Eq-fvS"/>
             </connections>
             <point key="canvasLocation" x="387.68115942028987" y="141.29464285714286"/>
         </collectionViewCell>

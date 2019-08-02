@@ -12,7 +12,9 @@ class NameCollectionViewCell: UICollectionViewCell {
   
   static let reuseIdentifier = "NameCollectionViewCell"
   
-  @IBOutlet weak var textLabel: UILabel!
+  @IBOutlet weak var nameLabel: UILabel!
+  @IBOutlet weak var genderLabel: UILabel!
+  @IBOutlet weak var countLabel: UILabel!
   override func awakeFromNib() {
     super.awakeFromNib()
     // Initialization code
