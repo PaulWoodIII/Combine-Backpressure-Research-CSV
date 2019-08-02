@@ -22,17 +22,20 @@ class NameDatabaseProvider: NSObject, ObservableObject {
     self.fetchedResultsControllerDelegate = fetchedResultsControllerDelegate
   }
   
-  
   /**
    A fetched results controller for the Post entity, sorted by title.
    */
   lazy var fetchedResultsController: NSFetchedResultsController<Name> = {
     let fetchRequest: NSFetchRequest<Name> = Name.fetchRequest()
-    fetchRequest.sortDescriptors = [NSSortDescriptor(key: Schema.Name.name.rawValue, ascending: true)]
+    fetchRequest.sortDescriptors = [
+      NSSortDescriptor(key: Schema.Name.gender.rawValue, ascending: true),
+      NSSortDescriptor(key: Schema.Name.name.rawValue, ascending: true)
+    ]
     
     let controller = NSFetchedResultsController(fetchRequest: fetchRequest,
                                                 managedObjectContext: persistentContainer.viewContext,
-                                                sectionNameKeyPath: nil, cacheName: nil)
+                                                sectionNameKeyPath: Schema.Name.gender.rawValue,
+                                                cacheName: nil)
     controller.delegate = fetchedResultsControllerDelegate
     
     do {
@@ -52,6 +55,7 @@ class NameDatabaseProvider: NSObject, ObservableObject {
       let name = Name(context: context)
       name.name = nameType.name
       name.gender = nameType.gender
+      name.count = Int64(nameType.count)
       if shouldSave {
         context.save(with: .addName)
       }

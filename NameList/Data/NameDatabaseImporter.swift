@@ -24,6 +24,9 @@ class NameDatabaseImporter: ObservableObject {
   func startParsing() {
     cancelParse = NameImporter().importFrom(file: .yob2000)
       .receive(on: bgq)
+      .filter({ name -> Bool in
+        name.count > 1000
+      })
       .flatMap({ (incName: NameType) in
         return Future { (promise) in
           self.provider.addName(name: incName,
@@ -32,10 +35,11 @@ class NameDatabaseImporter: ObservableObject {
             promise(.success(nameMO))
           }
         }
-      }).sink(receiveCompletion: { (error) in
+      })
+      .sink(receiveCompletion: { (error) in
         self.provider.persistentContainer.viewContext.save(with: .batchAddNames)
       }, receiveValue: { val in
-        print(val)
+
       })
   }
 }

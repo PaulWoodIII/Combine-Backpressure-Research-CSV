@@ -6,12 +6,14 @@
         <relationship name="yearOfBirth" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="YearOfBirth" inverseName="countForNameByYear" inverseEntity="YearOfBirth"/>
     </entity>
     <entity name="Name" representedClassName="Name" syncable="YES" codeGenerationType="class">
+        <attribute name="count" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="gender" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="countForYear" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CountForNameByYear" inverseName="name" inverseEntity="CountForNameByYear"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="name"/>
+                <constraint value="gender"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
@@ -26,7 +28,7 @@
     </entity>
     <elements>
         <element name="CountForNameByYear" positionX="-54.37109375" positionY="55.12890625" width="128" height="88"/>
-        <element name="Name" positionX="-296.60546875" positionY="40.5625" width="128" height="88"/>
+        <element name="Name" positionX="-296.60546875" positionY="40.5625" width="128" height="103"/>
         <element name="YearOfBirth" positionX="165.35546875" positionY="54.78515625" width="128" height="73"/>
     </elements>
 </model>
