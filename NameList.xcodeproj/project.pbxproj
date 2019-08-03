@@ -17,9 +17,14 @@
 		3C14CC0B22F1B9A000250058 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 3C14CC0A22F1B9A000250058 /* CSV */; };
 		3C14CC0D22F1B9B300250058 /* NameImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14CC0C22F1B9B300250058 /* NameImporter.swift */; };
 		3C14CC0F22F1B9BF00250058 /* NameType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14CC0E22F1B9BF00250058 /* NameType.swift */; };
+		3C162F7322F4A81C00137459 /* SyncImportToMainContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C162F7222F4A81C00137459 /* SyncImportToMainContext.swift */; };
+		3C162F7522F4B8E900137459 /* YearDatabaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C162F7422F4B8E900137459 /* YearDatabaseProvider.swift */; };
+		3C162F7722F4CC4100137459 /* NameFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C162F7622F4CC4100137459 /* NameFile.swift */; };
+		3C162F7922F4E61500137459 /* YearList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C162F7822F4E61500137459 /* YearList.swift */; };
 		3C23A3EA22F2250500BA5F69 /* Documentation in Resources */ = {isa = PBXBuildFile; fileRef = 3C23A3E922F2250500BA5F69 /* Documentation */; };
 		3C23A3EC22F233CD00BA5F69 /* SlowSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A3EB22F233CD00BA5F69 /* SlowSink.swift */; };
 		3C23A3EE22F243FA00BA5F69 /* Fixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A3ED22F243FA00BA5F69 /* Fixtures.swift */; };
+		3C3C6A8922F4F69400916603 /* YearOfBirth+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3C6A8822F4F69400916603 /* YearOfBirth+extensions.swift */; };
 		3C99928022F4696800603DC4 /* NameCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C99927E22F4696800603DC4 /* NameCollectionViewCell.swift */; };
 		3C99928122F4696800603DC4 /* NameCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3C99927F22F4696800603DC4 /* NameCollectionViewCell.xib */; };
 		3CD0E24A22F34F18005E648F /* NameModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3CD0E24822F34F18005E648F /* NameModel.xcdatamodeld */; };
@@ -59,9 +64,14 @@
 		3C14CC0022F1B98C00250058 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3C14CC0C22F1B9B300250058 /* NameImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameImporter.swift; sourceTree = "<group>"; };
 		3C14CC0E22F1B9BF00250058 /* NameType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameType.swift; sourceTree = "<group>"; };
+		3C162F7222F4A81C00137459 /* SyncImportToMainContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncImportToMainContext.swift; sourceTree = "<group>"; };
+		3C162F7422F4B8E900137459 /* YearDatabaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearDatabaseProvider.swift; sourceTree = "<group>"; };
+		3C162F7622F4CC4100137459 /* NameFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameFile.swift; sourceTree = "<group>"; };
+		3C162F7822F4E61500137459 /* YearList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearList.swift; sourceTree = "<group>"; };
 		3C23A3E922F2250500BA5F69 /* Documentation */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Documentation; sourceTree = "<group>"; };
 		3C23A3EB22F233CD00BA5F69 /* SlowSink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SlowSink.swift; path = "../../../../../../System/Volumes/Data/Users/paulwood/projects/CSVIdeas/Combine-Backpressure-Research-CSV/NameListTests/SlowSink.swift"; sourceTree = "<group>"; };
 		3C23A3ED22F243FA00BA5F69 /* Fixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Fixtures.swift; path = "../../../../../../System/Volumes/Data/Users/paulwood/projects/CSVIdeas/Combine-Backpressure-Research-CSV/NameListTests/Fixtures.swift"; sourceTree = "<group>"; };
+		3C3C6A8822F4F69400916603 /* YearOfBirth+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YearOfBirth+extensions.swift"; sourceTree = "<group>"; };
 		3C99927E22F4696800603DC4 /* NameCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameCollectionViewCell.swift; sourceTree = "<group>"; };
 		3C99927F22F4696800603DC4 /* NameCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NameCollectionViewCell.xib; sourceTree = "<group>"; };
 		3CD0E24922F34F18005E648F /* NameModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NameModel.xcdatamodel; sourceTree = "<group>"; };
@@ -149,6 +159,26 @@
 			path = NameListTests;
 			sourceTree = "<group>";
 		};
+		3C162F7122F4A7E000137459 /* Name List */ = {
+			isa = PBXGroup;
+			children = (
+				3C14CBEB22F1B98B00250058 /* ContentView.swift */,
+				3CDF398022F3682300218187 /* WrappedTableView.swift */,
+				3C99927E22F4696800603DC4 /* NameCollectionViewCell.swift */,
+				3C99927F22F4696800603DC4 /* NameCollectionViewCell.xib */,
+				3C162F7222F4A81C00137459 /* SyncImportToMainContext.swift */,
+			);
+			path = "Name List";
+			sourceTree = "<group>";
+		};
+		3C162F7A22F4E72D00137459 /* Year List */ = {
+			isa = PBXGroup;
+			children = (
+				3C162F7822F4E61500137459 /* YearList.swift */,
+			);
+			path = "Year List";
+			sourceTree = "<group>";
+		};
 		3CD0E24F22F34FAC005E648F /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -157,8 +187,10 @@
 				3C14CC0C22F1B9B300250058 /* NameImporter.swift */,
 				3CD0E25222F350A5005E648F /* CoreDataStack.swift */,
 				3CD0E25422F35289005E648F /* CoreData+Convenience.swift */,
-				3CD0E24D22F34F65005E648F /* NameDatabaseProvider.swift */,
 				3CD0E24B22F34F46005E648F /* NameDatabaseImporter.swift */,
+				3CD0E24D22F34F65005E648F /* NameDatabaseProvider.swift */,
+				3C162F7422F4B8E900137459 /* YearDatabaseProvider.swift */,
+				3C162F7622F4CC4100137459 /* NameFile.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -176,10 +208,8 @@
 		3CD0E25D22F36685005E648F /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				3C14CBEB22F1B98B00250058 /* ContentView.swift */,
-				3CDF398022F3682300218187 /* WrappedTableView.swift */,
-				3C99927E22F4696800603DC4 /* NameCollectionViewCell.swift */,
-				3C99927F22F4696800603DC4 /* NameCollectionViewCell.xib */,
+				3C162F7A22F4E72D00137459 /* Year List */,
+				3C162F7122F4A7E000137459 /* Name List */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -191,6 +221,7 @@
 				3CD0E24822F34F18005E648F /* NameModel.xcdatamodeld */,
 				3C14CC0E22F1B9BF00250058 /* NameType.swift */,
 				3CD0E25822F35D65005E648F /* Name+extensions.swift */,
+				3C3C6A8822F4F69400916603 /* YearOfBirth+extensions.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -308,15 +339,20 @@
 				3C14CC0D22F1B9B300250058 /* NameImporter.swift in Sources */,
 				3C14CC0F22F1B9BF00250058 /* NameType.swift in Sources */,
 				3CD0E25922F35D65005E648F /* Name+extensions.swift in Sources */,
+				3C162F7722F4CC4100137459 /* NameFile.swift in Sources */,
 				3CD0E25F22F3668C005E648F /* NameProvider.swift in Sources */,
 				3C14CBE822F1B98B00250058 /* AppDelegate.swift in Sources */,
 				3CD0E25122F34FBA005E648F /* Schema.swift in Sources */,
 				3C14CBEA22F1B98B00250058 /* SceneDelegate.swift in Sources */,
 				3CDF398122F3682300218187 /* WrappedTableView.swift in Sources */,
+				3C162F7522F4B8E900137459 /* YearDatabaseProvider.swift in Sources */,
+				3C3C6A8922F4F69400916603 /* YearOfBirth+extensions.swift in Sources */,
+				3C162F7922F4E61500137459 /* YearList.swift in Sources */,
 				3CD0E25C22F35E71005E648F /* AppEnvironment.swift in Sources */,
 				3CD0E25322F350A5005E648F /* CoreDataStack.swift in Sources */,
 				3CD0E24C22F34F46005E648F /* NameDatabaseImporter.swift in Sources */,
 				3CD0E25522F35289005E648F /* CoreData+Convenience.swift in Sources */,
+				3C162F7322F4A81C00137459 /* SyncImportToMainContext.swift in Sources */,
 				3CD0E24E22F34F65005E648F /* NameDatabaseProvider.swift in Sources */,
 				3CD0E24A22F34F18005E648F /* NameModel.xcdatamodeld in Sources */,
 				3C14CBEC22F1B98B00250058 /* ContentView.swift in Sources */,

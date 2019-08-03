@@ -13,10 +13,20 @@ struct NameType {
   var gender: String
   var count: Int
   
+  var identifiable: String {
+    return name+gender
+  }
+  
   public init(_ name: String, _ gender: String, _ count: Int) {
     self.name = name
     self.gender = gender
     self.count = count
+  }
+}
+
+extension NameType: Identifiable {
+  var id: String {
+    return identifiable
   }
 }
 

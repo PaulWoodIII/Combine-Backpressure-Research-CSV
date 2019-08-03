@@ -10,9 +10,7 @@ import Foundation
 import CoreData
 
 class NameDatabaseProvider: NSObject, ObservableObject {
-  
-  @Published var displayNames: [Name] = []
-  
+    
   private(set) var persistentContainer: NSPersistentContainer
   private weak var fetchedResultsControllerDelegate: NSFetchedResultsControllerDelegate?
   
@@ -47,7 +45,31 @@ class NameDatabaseProvider: NSObject, ObservableObject {
     return controller
   }()
   
+  func addCountForNameByYear(name: Name,
+                             nameType: NameType,
+                             forYear: YearOfBirth,
+                             in context: NSManagedObjectContext,
+                             shouldSave: Bool = true,
+                             completionHandler: ((_ newName: Name) -> Void)? = nil) {
+    context.perform {
+      
+      let yearCount = CountForNameByYear(context: context)
+      yearCount.count = Int64(nameType.count)
+      yearCount.yearOfBirth = forYear
+      yearCount.name = name
+      
+      forYear.addToCountForNameByYear(yearCount)
+      name.addToCountForYear(yearCount)
+      
+      if shouldSave {
+        context.save(with: .addName)
+      }
+      completionHandler?(name)
+    }
+  }
+  
   func addName(name nameType: NameType,
+               forYear: YearOfBirth,
                in context: NSManagedObjectContext,
                shouldSave: Bool = true,
                completionHandler: ((_ newName: Name) -> Void)? = nil) {
@@ -55,7 +77,16 @@ class NameDatabaseProvider: NSObject, ObservableObject {
       let name = Name(context: context)
       name.name = nameType.name
       name.gender = nameType.gender
-      name.count = Int64(nameType.count)
+      name.identifier = nameType.identifiable
+      
+      let yearCount = CountForNameByYear(context: context)
+      yearCount.count = Int64(nameType.count)
+      yearCount.yearOfBirth = forYear
+      yearCount.name = name
+      
+      forYear.addToCountForNameByYear(yearCount)
+      name.addToCountForYear(yearCount)
+      
       if shouldSave {
         context.save(with: .addName)
       }
@@ -76,17 +107,6 @@ class NameDatabaseProvider: NSObject, ObservableObject {
         context.save(with: .deleteName)
       }
       completionHandler?()
-    }
-  }
-  
-}
-
-extension NameDatabaseProvider: NSFetchedResultsControllerDelegate {
-  
-  public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-                         didChangeContentWith diff: CollectionDifference<NSManagedObjectID>) {
-    if let newObjects = controller.fetchedObjects as? [Name] {
-      self.displayNames = newObjects
     }
   }
 }

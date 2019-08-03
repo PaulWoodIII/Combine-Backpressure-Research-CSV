@@ -10,18 +10,23 @@ import SwiftUI
 import CoreData
 
 class NameTableCoordinator: NSObject, NSFetchedResultsControllerDelegate {
+  
   var collectionView: UICollectionView?
   var provider: NameDatabaseProvider!
+  var context: NSManagedObjectContext
   var dataSource: UICollectionViewDiffableDataSourceReference?
   var currentSnapshot: UICollectionViewDiffableDataSourceReference!
+  var sync: SyncImportToMainContext!
   enum Section: String, CaseIterable {
     case main
   }
   
   init(coreDataStack: CoreDataStack) {
+    context = coreDataStack.persistentContainer.viewContext
     super.init()
     self.provider = NameDatabaseProvider(with: coreDataStack.persistentContainer,
                                          fetchedResultsControllerDelegate: self)
+    self.sync = SyncImportToMainContext(dataProvider: self.provider)
     _ = try? self.provider.fetchedResultsController.performFetch()
   }
   
@@ -33,7 +38,7 @@ class NameTableCoordinator: NSObject, NSFetchedResultsControllerDelegate {
       let cell = collectionView.dequeueReusableCell(
         withReuseIdentifier: NameCollectionViewCell.reuseIdentifier,
         for: indexPath) as! NameCollectionViewCell
-      let moc = self.provider.persistentContainer.viewContext
+      let moc = self.context
       guard let moID = someObject as? NSManagedObjectID,
         let name = try? moc.existingObject(with: moID) as? Name else {
           return cell

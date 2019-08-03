@@ -48,6 +48,19 @@ class CoreDataStack: ObservableObject {
       self, selector: #selector(type(of: self).storeRemoteChange(_:)),
       name: .NSPersistentStoreRemoteChange, object: container)
     
+    // Create Batch Delete Request
+    let deleteName = NSBatchDeleteRequest(fetchRequest: Name.fetchRequest())
+    let deleteYears = NSBatchDeleteRequest(fetchRequest: YearOfBirth.fetchRequest())
+    let deleteCounts = NSBatchDeleteRequest(fetchRequest: CountForNameByYear.fetchRequest())
+    do {
+      try container.viewContext.execute(deleteName)
+      try container.viewContext.execute(deleteYears)
+      try container.viewContext.execute(deleteCounts)
+      try container.viewContext.save()
+    } catch {
+        // Error Handling
+    }
+    
     return container
   }()
   /**
@@ -143,118 +156,121 @@ extension CoreDataStack {
  Custom notifications in this sample.
  */
 extension Notification.Name {
-    static let didFindRelevantTransactions = Notification.Name("didFindRelevantTransactions")
+  static let didFindRelevantTransactions = Notification.Name("didFindRelevantTransactions")
 }
 
 // MARK: - Persistent history processing
 
 extension CoreDataStack {
-    
-    /**
-     Process persistent history, posting any relevant transactions to the current view.
-     */
-    func processPersistentHistory() {
-        let taskContext = persistentContainer.newBackgroundContext()
-        taskContext.performAndWait {
-            
-            // Fetch history received from outside the app since the last token
-            let historyFetchRequest = NSPersistentHistoryTransaction.fetchRequest!
-            historyFetchRequest.predicate = NSPredicate(format: "author != %@", appTransactionAuthorName)
-            let request = NSPersistentHistoryChangeRequest.fetchHistory(after: lastHistoryToken)
-            request.fetchRequest = historyFetchRequest
-
-            let result = (try? taskContext.execute(request)) as? NSPersistentHistoryResult
-            guard let transactions = result?.result as? [NSPersistentHistoryTransaction],
-                  !transactions.isEmpty
-                else { return }
-
-            // Post transactions relevant to the current view.
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .didFindRelevantTransactions, object: self, userInfo: ["transactions": transactions])
-            }
-
-            // Deduplicate the new tags.
-//            var newTagObjectIDs = [NSManagedObjectID]()
-//            let tagEntityName = Tag.entity().name
-//
-//            for transaction in transactions where transaction.changes != nil {
-//                for change in transaction.changes!
-//                    where change.changedObjectID.entity.name == tagEntityName && change.changeType == .insert {
-//                        newTagObjectIDs.append(change.changedObjectID)
-//                }
-//            }
-//            if !newTagObjectIDs.isEmpty {
-//                deduplicateAndWait(tagObjectIDs: newTagObjectIDs)
-//            }
-            
-            // Update the history token using the last transaction.
-            lastHistoryToken = transactions.last!.token
+  
+  /**
+   Process persistent history, posting any relevant transactions to the current view.
+   */
+  func processPersistentHistory() {
+    let taskContext = persistentContainer.newBackgroundContext()
+    taskContext.performAndWait {
+      
+      // Fetch history received from outside the app since the last token
+      let historyFetchRequest = NSPersistentHistoryTransaction.fetchRequest!
+      historyFetchRequest.predicate = NSPredicate(format: "author != %@", appTransactionAuthorName)
+      let request = NSPersistentHistoryChangeRequest.fetchHistory(after: lastHistoryToken)
+      request.fetchRequest = historyFetchRequest
+      
+      let result = (try? taskContext.execute(request)) as? NSPersistentHistoryResult
+      guard let transactions = result?.result as? [NSPersistentHistoryTransaction],
+        !transactions.isEmpty
+        else { return }
+      
+      // Post transactions relevant to the current view.
+      DispatchQueue.main.async {
+        NotificationCenter.default.post(name: .didFindRelevantTransactions, object: self, userInfo: ["transactions": transactions])
+      }
+      
+      // Deduplicate the new tags.
+      var newNameObjectIDs = [NSManagedObjectID]()
+      let nameEntityName = Name.entity().name
+      
+      for transaction in transactions where transaction.changes != nil {
+        for change in transaction.changes!
+          where change.changedObjectID.entity.name == nameEntityName && change.changeType == .insert {
+            newNameObjectIDs.append(change.changedObjectID)
         }
+      }
+      if !newNameObjectIDs.isEmpty {
+        deduplicateAndWait(tagObjectIDs: newNameObjectIDs)
+      }
+      
+      // Update the history token using the last transaction.
+      lastHistoryToken = transactions.last!.token
     }
+  }
 }
 
 // MARK: - Deduplicate tags
-/*
+
 extension CoreDataStack {
-    /**
-     Deduplicate tags with the same name by processing the persistent history, one tag at a time, on the historyQueue.
-     
-     All peers should eventually reach the same result with no coordination or communication.
-     */
-    private func deduplicateAndWait(tagObjectIDs: [NSManagedObjectID]) {
-        // Make any store changes on a background context
-        let taskContext = persistentContainer.backgroundContext()
-        
-        // Use performAndWait because each step relies on the sequence. Since historyQueue runs in the background, waiting won’t block the main queue.
-        taskContext.performAndWait {
-            tagObjectIDs.forEach { tagObjectID in
-                self.deduplicate(tagObjectID: tagObjectID, performingContext: taskContext)
-            }
-            // Save the background context to trigger a notification and merge the result into the viewContext.
-            taskContext.save(with: .deduplicate)
-        }
+  /**
+   Deduplicate tags with the same name by processing the persistent history, one tag at a time, on the historyQueue.
+   
+   All peers should eventually reach the same result with no coordination or communication.
+   */
+  private func deduplicateAndWait(tagObjectIDs: [NSManagedObjectID]) {
+    // Make any store changes on a background context
+    let taskContext = persistentContainer.backgroundContext()
+    
+    // Use performAndWait because each step relies on the sequence. Since historyQueue runs in the background, waiting won’t block the main queue.
+    taskContext.performAndWait {
+      tagObjectIDs.forEach { tagObjectID in
+        self.deduplicate(tagObjectID: tagObjectID, performingContext: taskContext)
+      }
+      // Save the background context to trigger a notification and merge the result into the viewContext.
+      taskContext.save(with: .deduplicate)
     }
-
-    /**
-     Deduplicate a single tag.
-     */
-    private func deduplicate(tagObjectID: NSManagedObjectID, performingContext: NSManagedObjectContext) {
-        guard let tag = performingContext.object(with: tagObjectID) as? Tag,
-            let tagName = tag.name else {
-            fatalError("###\(#function): Failed to retrieve a valid tag with ID: \(tagObjectID)")
-        }
-
-        // Fetch all tags with the same name, sorted by uuid
-        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: Schema.Tag.uuid.rawValue, ascending: true)]
-        fetchRequest.predicate = NSPredicate(format: "\(Schema.Tag.name.rawValue) == %@", tagName)
-        
-        // Return if there are no duplicates.
-        guard var duplicatedTags = try? performingContext.fetch(fetchRequest), duplicatedTags.count > 1 else {
-            return
-        }
-        print("###\(#function): Deduplicating tag with name: \(tagName), count: \(duplicatedTags.count)")
-        
-        // Pick the first tag as the winner.
-        let winner = duplicatedTags.first!
-        duplicatedTags.removeFirst()
-        remove(duplicatedTags: duplicatedTags, winner: winner, performingContext: performingContext)
+  }
+  
+  /**
+   Deduplicate a single tag.
+   */
+  private func deduplicate(tagObjectID: NSManagedObjectID,
+                           performingContext: NSManagedObjectContext) {
+    guard let tag = performingContext.object(with: tagObjectID) as? Name,
+      let tagName = tag.name else {
+        fatalError("###\(#function): Failed to retrieve a valid tag with ID: \(tagObjectID)")
     }
     
-    /**
-     Remove duplicate tags from their respective posts, replacing them with the winner.
-     */
-    private func remove(duplicatedTags: [Tag], winner: Tag, performingContext: NSManagedObjectContext) {
-        duplicatedTags.forEach { tag in
-            defer { performingContext.delete(tag) }
-            guard let posts = tag.posts else { return }
-            
-            for case let post as Post in posts {
-                if let index = post.tags?.index(of: tag) {
-                    post.replaceTags(at: index, with: winner)
-                }
-            }
-        }
+    // Fetch all tags with the same name, sorted by uuid
+    let fetchRequest: NSFetchRequest<Name> = Name.fetchRequest()
+    fetchRequest.sortDescriptors = [NSSortDescriptor(key: Schema.Name.identifier.rawValue, ascending: true)]
+    fetchRequest.predicate = NSPredicate(format: "\(Schema.Name.identifier.rawValue) == %@", tagName)
+    
+    // Return if there are no duplicates.
+    guard var duplicatedTags = try? performingContext.fetch(fetchRequest), duplicatedTags.count > 1 else {
+      return
     }
+    print("###\(#function): Deduplicating tag with name: \(tagName), count: \(duplicatedTags.count)")
+    
+    // Pick the first tag as the winner.
+    let winner = duplicatedTags.first!
+    duplicatedTags.removeFirst()
+    remove(duplicatedTags: duplicatedTags, winner: winner, performingContext: performingContext)
+  }
+  
+  /**
+   Remove duplicate tags from their respective posts, replacing them with the winner.
+   */
+  private func remove(duplicatedTags: [Name],
+                      winner: Name,
+                      performingContext: NSManagedObjectContext) {
+//    duplicatedTags.forEach { tag in
+//      defer { performingContext.delete(tag) }
+//      guard let counts = tag.countForYear else { return }
+//
+//      for case let count as CountForNameByYear in counts {
+//        if let index = count.countForYear?.index(of: tag) {
+//          post.replaceTags(at: index, with: winner)
+//        }
+//      }
+//    }
+  }
 }
-*/
+

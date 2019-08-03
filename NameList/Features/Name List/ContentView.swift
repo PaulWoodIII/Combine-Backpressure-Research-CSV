@@ -11,21 +11,12 @@ import SwiftUI
 struct ContentView: View {
   
   @EnvironmentObject var coreDataStack: CoreDataStack
-
+  
   var body: some View {
-    NavigationView {
-      VStack {
-        Text("Some Top Names from 1880").font(.title).lineLimit(nil)
-        Text("Provided by Data.gov and Social Security records").font(.subheadline).lineLimit(nil)
-        WrappedTableView(coreDataStack: coreDataStack)
-      }
+    VStack {
+      WrappedTableView(coreDataStack: coreDataStack)
     }
-  }
-}
-
-extension NameType: Identifiable {
-  var id: String {
-    return name
+//    .navigationTitle("Name for year")
   }
 }
 

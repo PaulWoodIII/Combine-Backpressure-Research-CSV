@@ -13,7 +13,7 @@ import CoreData
  */
 enum Schema {
   enum Name: String {
-    case name, gender, countForYear
+    case identifier, name, gender, countForYear
   }
   enum YearOfBirth: String {
     case year, countForNameByYear
@@ -22,3 +22,4 @@ enum Schema {
     case count, name, yearOfBirth
   }
 }
+

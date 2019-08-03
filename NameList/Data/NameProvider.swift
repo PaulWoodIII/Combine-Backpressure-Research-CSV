@@ -10,6 +10,7 @@ import Foundation
 import Combine
 
 class NameProvider: ObservableObject {
+  
   @Published var displayNames: [NameType] = []
   
   var cancelParseAndSort: Cancellable?
@@ -23,24 +24,23 @@ class NameProvider: ObservableObject {
   }
   
   func startParsing() {
-    cancelParseAndSort = NameImporter().importFrom(file: .yob2000)
-    
-      .receive(on: bgq)
-      // keep the data set size manageable
-      .filter({ return $0.count > 1000 })
-      // minor premature optimization sort 50 at a time
-      .collect(50)
-      .scan([NameType](), { (all, new) -> [NameType] in
-        return all + new
-      })
-      .map({ (items: [NameType]) in
-        return items.sorted { (left, right) -> Bool in
-          return left.count > right.count
-        }
-      })
-      .replaceError(with: [NameType]())
-      .delay(for: 1, scheduler: bgq)
-      .receive(on: DispatchQueue.main)
-      .assign(to: \.displayNames, on: self)
+//    cancelParseAndSort = NameImporter().importFrom(assetNamed: .yob2000.rawValue)
+//    
+//      .receive(on: bgq)
+//      // keep the data set size manageable
+//      .filter({ return $0.count > 1000 })
+//      // minor premature optimization sort 50 at a time
+//      .collect(50)
+//      .scan([NameType](), { (all, new) -> [NameType] in
+//        return all + new
+//      })
+//      .map({ (items: [NameType]) in
+//        return items.sorted { (left, right) -> Bool in
+//          return left.count > right.count
+//        }
+//      })
+//      .replaceError(with: [NameType]())
+//      .receive(on: DispatchQueue.main)
+//      .assign(to: \.displayNames, on: self)
   }
 }

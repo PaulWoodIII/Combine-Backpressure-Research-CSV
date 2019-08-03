@@ -16,14 +16,14 @@ class NameListTests: XCTestCase {
     let sut = NameImporter()
     for f in NameFile.allCases {
       // The test is simple assert that something comes out for each file
-      _ = sut.importFrom(file: f).first().assertNoFailure().makeConnectable().connect()
+      _ = sut.importFrom(assetNamed: f.rawValue).first().assertNoFailure().makeConnectable().connect()
     }
   }
   
   func testExample() {
     let sut = NameImporter()
     var names: [NameType]!
-    _ = sut.importFrom(file: NameFile.test)
+    _ = sut.importFrom(assetNamed: "test")
       .collect()
       .sink(receiveCompletion: { completion in
         
@@ -36,7 +36,7 @@ class NameListTests: XCTestCase {
   func testBackpressure() {
     let sut = NameImporter()
     var names: [NameType] = []
-    _ = sut.importFrom(file: NameFile.test)
+    _ = sut.importFrom(assetNamed: "test")
       .slowSink(slowBy: 1,
                 receiveCompletion: { completion in
       }) { nextName in
@@ -49,9 +49,8 @@ class NameListTests: XCTestCase {
   func testSpeed() {
     self.measure {
       let sut = NameImporter()
-      _ = sut.importFrom(file: NameFile.test).assertNoFailure().makeConnectable().connect()
+      _ = sut.importFrom(assetNamed: "test").assertNoFailure().makeConnectable().connect()
     }
   }
   
 }
-
