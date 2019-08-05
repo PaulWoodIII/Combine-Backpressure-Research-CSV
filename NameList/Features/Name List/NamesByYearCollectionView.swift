@@ -9,25 +9,21 @@
 import SwiftUI
 import CoreData
 
-class NameTableCoordinator: NSObject, NSFetchedResultsControllerDelegate {
+class NamesByYearCollectionViewCoordinator: NSObject, NSFetchedResultsControllerDelegate {
   
-  var collectionView: UICollectionView?
-  var provider: NameDatabaseProvider!
-  var context: NSManagedObjectContext
-  var dataSource: UICollectionViewDiffableDataSourceReference?
-  var currentSnapshot: UICollectionViewDiffableDataSourceReference!
-  var sync: SyncImportToMainContext!
+  var dataSource: UICollectionViewDiffableDataSourceReference!
+  var fetchedResultsController: NSFetchedResultsController<CountForNameByYear>!
+  
   enum Section: String, CaseIterable {
     case main
   }
   
-  init(coreDataStack: CoreDataStack) {
-    context = coreDataStack.persistentContainer.viewContext
+  init(context: NSManagedObjectContext,
+       year: YearOfBirth) {
     super.init()
-    self.provider = NameDatabaseProvider(with: coreDataStack.persistentContainer,
-                                         fetchedResultsControllerDelegate: self)
-    self.sync = SyncImportToMainContext(dataProvider: self.provider)
-    _ = try? self.provider.fetchedResultsController.performFetch()
+    let controller = CountForNameByYear.fetchController(forYear: year, inContext: context)
+    controller.delegate = self
+    self.fetchedResultsController = controller
   }
   
   func setup(collectionView: UICollectionView) {
@@ -38,36 +34,38 @@ class NameTableCoordinator: NSObject, NSFetchedResultsControllerDelegate {
       let cell = collectionView.dequeueReusableCell(
         withReuseIdentifier: NameCollectionViewCell.reuseIdentifier,
         for: indexPath) as! NameCollectionViewCell
-      let moc = self.context
+      let moc = self.fetchedResultsController.managedObjectContext
       guard let moID = someObject as? NSManagedObjectID,
-        let name = try? moc.existingObject(with: moID) as? Name else {
+        let count = try? moc.existingObject(with: moID) as? CountForNameByYear else {
           return cell
       }
-      cell.nameLabel.text = name.name
-      cell.genderLabel.text = name.gender == "F" ? "👧" : "👦"
-      cell.countLabel.text = "\(name.count)"
+      cell.nameLabel.text = count.name?.name ?? "NAN"
+      cell.genderLabel.text = count.name?.gender == "F" ? "👧" : "👦"
+      cell.countLabel.text = "\(count.count)"
       return cell
     }
-    
+    ds.applySnapshot(NSDiffableDataSourceSnapshotReference.init(), animatingDifferences: false)
     collectionView.dataSource = ds
     self.dataSource = ds
+    try! self.fetchedResultsController.performFetch()
   }
   
   func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
                   didChangeContentWith ref: NSDiffableDataSourceSnapshotReference) {
-    dataSource?.applySnapshot(ref, animatingDifferences: true)
+    dataSource.applySnapshot(ref, animatingDifferences: true)
   }
 }
 
-struct WrappedTableView: UIViewRepresentable {
+struct NamesByYearCollectionView: UIViewRepresentable {
   
-  let coreDataStack: CoreDataStack
-  
+  let year: YearOfBirth
+  let context: NSManagedObjectContext
+
   typealias UIViewType = UICollectionView
   
-  func makeUIView(context: UIViewRepresentableContext<WrappedTableView>) -> UICollectionView {
+  func makeUIView(context: UIViewRepresentableContext<NamesByYearCollectionView>) -> UICollectionView {
     let collectionViewLayout = createLayout()
-    let view = UICollectionView(frame: CGRect.zero,
+    let view = UICollectionView(frame: UIScreen.screens.first?.bounds ?? CGRect.zero,
                                 collectionViewLayout: collectionViewLayout)
     view.backgroundColor = UIColor.systemBackground
     let nib = UINib(nibName: "NameCollectionViewCell", bundle: Bundle.main)
@@ -79,12 +77,12 @@ struct WrappedTableView: UIViewRepresentable {
   }
   
   func updateUIView(_ uiView: UICollectionView,
-                    context: UIViewRepresentableContext<WrappedTableView>) {
+                    context: UIViewRepresentableContext<NamesByYearCollectionView>) {
     //let the fetched results controller handle it
   }
   
-  func makeCoordinator() -> NameTableCoordinator {
-    let coordinator = NameTableCoordinator(coreDataStack: coreDataStack)
+  func makeCoordinator() -> NamesByYearCollectionViewCoordinator {
+    let coordinator = NamesByYearCollectionViewCoordinator(context: context, year: year)
     return coordinator
   }
   

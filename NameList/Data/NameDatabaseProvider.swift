@@ -44,54 +44,48 @@ class NameDatabaseProvider: NSObject, ObservableObject {
     
     return controller
   }()
-  
-  func addCountForNameByYear(name: Name,
-                             nameType: NameType,
-                             forYear: YearOfBirth,
-                             in context: NSManagedObjectContext,
-                             shouldSave: Bool = true,
-                             completionHandler: ((_ newName: Name) -> Void)? = nil) {
-    context.perform {
-      
-      let yearCount = CountForNameByYear(context: context)
-      yearCount.count = Int64(nameType.count)
-      yearCount.yearOfBirth = forYear
-      yearCount.name = name
-      
-      forYear.addToCountForNameByYear(yearCount)
-      name.addToCountForYear(yearCount)
-      
-      if shouldSave {
-        context.save(with: .addName)
-      }
-      completionHandler?(name)
-    }
-  }
-  
+    
   func addName(name nameType: NameType,
                forYear: YearOfBirth,
                in context: NSManagedObjectContext,
-               shouldSave: Bool = true,
-               completionHandler: ((_ newName: Name) -> Void)? = nil) {
-    context.perform {
-      let name = Name(context: context)
-      name.name = nameType.name
-      name.gender = nameType.gender
-      name.identifier = nameType.identifiable
+               shouldSave: Bool = true) -> Name {
+    log.verbose("ADD:\(nameType.loggingDescription)")
+    var name: Name?
+    context.performAndWait {
+      let requestByIdentifier: NSFetchRequest<Name> = Name.fetchRequest()
+      requestByIdentifier.predicate = NSPredicate(format: "%K = %@",
+                                                  Schema.Name.identifier.rawValue,
+                                                  nameType.identifiable)
       
-      let yearCount = CountForNameByYear(context: context)
-      yearCount.count = Int64(nameType.count)
-      yearCount.yearOfBirth = forYear
-      yearCount.name = name
+      if let foundName = try? requestByIdentifier.execute().first {
+        name = foundName
+      } else {
+        name = Name(context: context)
+        name!.name = nameType.name
+        name!.gender = nameType.gender
+        name!.identifier = nameType.identifiable
+      }
       
-      forYear.addToCountForNameByYear(yearCount)
-      name.addToCountForYear(yearCount)
+      if let _ = name!.countForYear?.allObjects.filter({ c in
+        let count = c as! CountForNameByYear
+        return count.name == name && count.yearOfBirth == forYear
+      }).first {
+        // Do nothing
+      } else {
+        let yearCount = CountForNameByYear(context: context)
+        yearCount.count = Int64(nameType.count)
+        yearCount.yearOfBirth = forYear
+        yearCount.name = name
+        
+        forYear.addToCountForNameByYear(yearCount)
+        name!.addToCountForYear(yearCount)
+      }
       
       if shouldSave {
         context.save(with: .addName)
       }
-      completionHandler?(name)
     }
+    return name!
   }
   
   func delete(name: Name,

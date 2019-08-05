@@ -1,8 +1,8 @@
 //
-//  AppEnvironment.swift
+//  PreviewAppEnvironment.swift
 //  NameList
 //
-//  Created by Paul Wood on 8/1/19.
+//  Created by Paul Wood on 8/5/19.
 //  Copyright © 2019 Paul Wood. All rights reserved.
 //
 
@@ -10,16 +10,16 @@ import Foundation
 import SwiftUI
 import SwiftyBeaver
 
-class ApplicationEnvironment {
+class PreviewApplicationEnvironment {
   static let shared = ApplicationEnvironment()
-  lazy var coreDataStack: CoreDataStack = { return CoreDataStack() }()
+  lazy var coreDataStack: CoreDataStack = { return CoreDataStack(configuration: .preview) }()
   lazy var sharedNameProvider = NameDatabaseProvider(with: coreDataStack.persistentContainer, fetchedResultsControllerDelegate: nil)
   lazy var sharedYearProvider = YearDatabaseProvider(with: coreDataStack.persistentContainer, fetchedResultsControllerDelegate: nil)
   lazy var importer = NameDatabaseImporter(provider: sharedNameProvider, yearProvider: sharedYearProvider)
 }
 
 
-struct AppEnvironment: ViewModifier {
+struct PreviewAppEnvironment: ViewModifier {
   
   func body(content: Content) -> some View {
     content
@@ -33,7 +33,7 @@ struct AppEnvironment: ViewModifier {
 }
 
 extension View {
-  func appEnvironment() -> some View {
-    ModifiedContent(content: self, modifier: AppEnvironment())
+  func previewAppEnvironment() -> some View {
+    ModifiedContent(content: self, modifier: PreviewAppEnvironment())
   }
 }

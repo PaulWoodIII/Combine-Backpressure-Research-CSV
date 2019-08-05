@@ -13,3 +13,9 @@ extension Name: Identifiable {
     return name!
   }
 }
+
+extension Name: LoggingStringConvertable {
+  public var loggingDescription: String {
+    return "Name(\(name ?? "NaN"):\(self.objectID))"
+  }
+}

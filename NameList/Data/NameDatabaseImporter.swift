@@ -27,7 +27,7 @@ class NameDatabaseImporter: ObservableObject {
     self.provider = provider
     self.yearProvider = yearProvider
     self.syncContext = provider.persistentContainer.backgroundContext()
-    startParsing()
+    cancelParse = createYears().makeConnectable().connect()
   }
   
   func createYears() -> AnyPublisher<NSManagedObject, Never> {
@@ -47,65 +47,63 @@ class NameDatabaseImporter: ObservableObject {
       .eraseToAnyPublisher()
   }
   
-  func saveName(year: YearOfBirth, name incName: NameType) -> AnyPublisher<Name, Never> {
-    return Future<Name, Never> { promise in
-      if let nameID = self.cache[incName.identifiable],
-        let name = self.syncContext.object(with: nameID) as? Name {
-        self.provider.addCountForNameByYear(
-          name: name,
-          nameType: incName,
-          forYear: year,
-          in: self.syncContext,
-          shouldSave: true){ (nameMO) in
-            promise(.success(nameMO))
-        }
-      } else {
-        self.provider.addName(
-          name: incName,
-          forYear: year,
-          in:self.syncContext,
-          shouldSave: true) { (nameMO) in
-            self.cache[nameMO.identifier!] = nameMO.objectID
-            promise(.success(nameMO))
-        }
-      }
+  func createNames(year incYear: YearOfBirth) -> AnyPublisher<Name, NameDatabaseImportError> {
+    let syncYear = syncContext.object(with: incYear.objectID) as! YearOfBirth
+    guard let yearString = syncYear.year else {
+      preconditionFailure("Year not initialized before parsing started")
     }
-    .eraseToAnyPublisher()
-  }
-  
-  func createNames(year: YearOfBirth) -> AnyPublisher<Name, NameDatabaseImportError> {
-    return Publishers.Sequence<NameFile.AllCases, NameDatabaseImportError>(sequence: NameFile.allCases)
-      .flatMap ({ nameFile in
-        return NameImporter().importFrom(assetNamed: nameFile.rawValue)
-          .mapError { (error) -> NameDatabaseImportError in
-            return .databaseError
-        }
-        .eraseToAnyPublisher()
-      })
-      .receive(on: bgq)
-      .subscribe(on: bgq)
-      .flatMap({ incName in
-        return self.saveName(year: year, name: incName)
-          .setFailureType(to: NameDatabaseImportError.self)
-      })
-      .receive(on: bgq)
-      .subscribe(on: bgq)
+    let filename: String = "yob" + yearString
+    guard let file = NameFile(rawValue: filename) else {
+      return Fail<Name, NameDatabaseImportError>(error: .databaseError).eraseToAnyPublisher()
+    }
+    return NameImporter().importFrom(assetNamed: file.rawValue)
+      .mapError { (error) -> NameDatabaseImportError in
+        return .databaseError
+    }
+    .buffer(size: Int.max, prefetch: .byRequest, whenFull: .customError({return .databaseError}))
+    .map({ incName -> Name in
+      return self.provider.addName(
+        name: incName,
+        forYear: syncYear,
+        in:self.syncContext,
+        shouldSave: false)
+    })
       .eraseToAnyPublisher()
   }
   
   func startParsing() {
-    cancelParse = self.createYears()
+    guard case .success(let years) = YearOfBirth.allYears(inContext: syncContext) else {
+      preconditionFailure("Year not initialized before parsing started")
+    }
+    cancelParse = Publishers.Sequence(sequence: years)
       .receive(on: bgq)
       .subscribe(on: bgq)
       .setFailureType(to: NameDatabaseImportError.self)
       .flatMap({ (year) -> AnyPublisher<Name, NameDatabaseImportError> in
-        let yearOfBirth = year as! YearOfBirth
-        return self.createNames(year: yearOfBirth)
+        return self.createNames(year: year)
       })
-      .sink(receiveCompletion: { (error) in
+      .singleSink(receiveCompletion: { (error) in
         self.syncContext.save(with: .batchAddNames)
       }, receiveValue: { val in
         self.syncContext.save(with: .batchAddNames)
       })
+  }
+  
+  func startParsing(year incYear: YearOfBirth) {
+    let syncYear = self.syncContext.object(with: incYear.objectID) as! YearOfBirth
+    cancelParse = self.createNames(year: syncYear)
+      .subscribe(on: bgq)
+      .receive(on: bgq)
+      .collect(1000)
+      .handleEvents(receiveOutput: { _ in
+        self.syncContext.save(with: .batchAddNames)
+      })
+      .delay(for: 0.25, scheduler: DispatchQueue.main)
+      .singleSink(receiveCompletion: { (complete: Subscribers.Completion<NameDatabaseImporter.NameDatabaseImportError>) in
+        self.syncContext.save(with: .batchAddNames)
+      }, receiveValue: { _ in
+        self.syncContext.save(with: .batchAddNames)
+      })
+    
   }
 }

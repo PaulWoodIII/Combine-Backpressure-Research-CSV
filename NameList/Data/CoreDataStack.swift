@@ -11,10 +11,19 @@ import CoreData
 
 // MARK: - Core Data Stack
 
+
 /**
  Core Data stack setup including history processing.
  */
 class CoreDataStack: ObservableObject {
+  
+  let config: Configuration
+  
+  enum Configuration {
+    case preview
+    case `default`
+  }
+  
   /**
    A persistent container that can load cloud-backed and non-cloud stores.
    */
@@ -23,8 +32,13 @@ class CoreDataStack: ObservableObject {
     let container = NSPersistentContainer(name: "NameModel")
     
     // Enable history tracking and remote notifications
+    
     guard let description = container.persistentStoreDescriptions.first else {
       fatalError("###\(#function): Failed to retrieve a persistent store description.")
+    }
+    
+    if case .preview = self.config {
+      description.url = URL(fileURLWithPath: "/dev/null")
     }
     description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
     description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
@@ -37,11 +51,11 @@ class CoreDataStack: ObservableObject {
     container.viewContext.transactionAuthor = appTransactionAuthorName
     
     container.viewContext.automaticallyMergesChangesFromParent = true
-    do {
-      try container.viewContext.setQueryGenerationFrom(.current)
-    } catch {
-      fatalError("###\(#function): Failed to pin viewContext to the current generation:\(error)")
-    }
+//    do {
+//      try container.viewContext.setQueryGenerationFrom(.current)
+//    } catch {
+//      fatalError("###\(#function): Failed to pin viewContext to the current generation:\(error)")
+//    }
     
     // Observe Core Data remote change notifications.
     NotificationCenter.default.addObserver(
@@ -76,7 +90,7 @@ class CoreDataStack: ObservableObject {
       do {
         try data.write(to: tokenFile)
       } catch {
-        print("###\(#function): Failed to write token data. Error = \(error)")
+        log.verbose("###\(#function): Failed to write token data. Error = \(error)")
       }
     }
   }
@@ -90,7 +104,7 @@ class CoreDataStack: ObservableObject {
       do {
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
       } catch {
-        print("###\(#function): Failed to create persistent container URL. Error = \(error)")
+        log.verbose("###\(#function): Failed to create persistent container URL. Error = \(error)")
       }
     }
     return url.appendingPathComponent("token.data", isDirectory: false)
@@ -118,19 +132,21 @@ class CoreDataStack: ObservableObject {
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
         
       } catch {
-        print("###\(#function): Failed to create thumbnail folder URL: \(error)")
+        log.error("###\(#function): Failed to create thumbnail folder URL: \(error)")
       }
     }
     return url
   }()
   
-  init() {
+  
+  init(configuration: Configuration = .default) {
     // Load the last token from the token file.
+    self.config = configuration
     if let tokenData = try? Data(contentsOf: tokenFile) {
       do {
         lastHistoryToken = try NSKeyedUnarchiver.unarchivedObject(ofClass: NSPersistentHistoryToken.self, from: tokenData)
       } catch {
-        print("###\(#function): Failed to unarchive NSPersistentHistoryToken. Error = \(error)")
+        log.error("###\(#function): Failed to unarchive NSPersistentHistoryToken. Error = \(error)")
       }
     }
   }
@@ -143,7 +159,7 @@ extension CoreDataStack {
    */
   @objc
   func storeRemoteChange(_ notification: Notification) {
-    print("###\(#function): Merging changes from the other persistent store coordinator.")
+    log.verbose("###\(#function): Merging changes from the other persistent store coordinator.")
     
     // Process persistent history to merge changes from other coordinators.
     historyQueue.addOperation {
@@ -247,7 +263,7 @@ extension CoreDataStack {
     guard var duplicatedTags = try? performingContext.fetch(fetchRequest), duplicatedTags.count > 1 else {
       return
     }
-    print("###\(#function): Deduplicating tag with name: \(tagName), count: \(duplicatedTags.count)")
+    log.verbose("###\(#function): Deduplicating tag with name: \(tagName), count: \(duplicatedTags.count)")
     
     // Pick the first tag as the winner.
     let winner = duplicatedTags.first!

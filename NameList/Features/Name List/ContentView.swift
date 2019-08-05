@@ -11,19 +11,25 @@ import SwiftUI
 struct ContentView: View {
   
   @EnvironmentObject var coreDataStack: CoreDataStack
-  
+  @Environment(\.managedObjectContext) var managedObjectContext
+  @ObservedObject var year: YearOfBirth
+  @EnvironmentObject var importer: NameDatabaseImporter
+
   var body: some View {
     VStack {
-      WrappedTableView(coreDataStack: coreDataStack)
+      NamesByYearCollectionView(year: year, context: managedObjectContext)
     }
-//    .navigationTitle("Name for year")
+    .navigationBarTitle(Text("Names from \(year.year ?? "")") )
+    .onAppear {
+      self.importer.startParsing(year: self.year)
+    }
   }
 }
 
-#if DEBUG
-struct ContentView_Previews: PreviewProvider {
-  static var previews: some View {
-    ContentView().appEnvironment()
-  }
-}
-#endif
+//#if DEBUG
+//struct ContentView_Previews: PreviewProvider {
+//  static var previews: some View {
+//    ContentView().appEnvironment()
+//  }
+//}
+//#endif

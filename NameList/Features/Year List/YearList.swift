@@ -12,17 +12,24 @@ import Combine
 
 struct YearList: View {
   
-  @EnvironmentObject var coreDataStack: CoreDataStack
-  @EnvironmentObject var yearProvider: YearFetcher
+  @Environment(\.managedObjectContext) var managedObjectContext
+  @FetchRequest(fetchRequest: YearOfBirth.allFetchRequest()) var years: FetchedResults<YearOfBirth>
+  @EnvironmentObject var importer: NameDatabaseImporter
   
   var body: some View {
     NavigationView{
       VStack {
         Text("Provided by Data.gov and Social Security records").font(.subheadline).lineLimit(nil)
-        List(yearProvider.displayData) { (year: YearOfBirth) in
-          Text(year.year!)
+        List(years) { (year: YearOfBirth) in
+          NavigationLink(destination: ContentView(year: year)) {
+            Text(year.year ?? "NaN")
+          }
         }
-      }
+        }.navigationBarTitle("American Names")
+      .navigationBarItems(trailing: Button(
+        action: importer.startParsing,
+        label: { Text("Parse") }
+      ))
     }
   }
 }
@@ -34,31 +41,3 @@ struct YearList_Previews: PreviewProvider {
   }
 }
 #endif
-
-class YearFetcher: NSObject, NSFetchedResultsControllerDelegate, ObservableObject {
-  var coreDataStack: CoreDataStack
-  var yearDatabaseProvider: YearDatabaseProvider!
-  
-  var objectWillChange = PassthroughSubject<Void, Never>()
-  
-  @Published var displayData: [YearOfBirth] = []
-  var currentObjectIds: [NSManagedObjectID] = []
-  
-  init(coreDataStack: CoreDataStack){
-    self.coreDataStack = coreDataStack
-    super.init()
-    self.yearDatabaseProvider = YearDatabaseProvider(with: coreDataStack.persistentContainer,
-                                                     fetchedResultsControllerDelegate: self)
-    _ = self.yearDatabaseProvider.fetchedResultsController
-  }
-  
-  func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-                  didChangeContentWith diff: CollectionDifference<NSManagedObjectID>) {
-    objectWillChange.send()
-    currentObjectIds = currentObjectIds.applying(diff) ?? []
-    self.displayData = currentObjectIds.compactMap { (id) -> YearOfBirth in
-      return coreDataStack.persistentContainer.viewContext.object(with: id) as! YearOfBirth
-    }
-  }
-  
-}

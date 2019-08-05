@@ -14,7 +14,7 @@ struct NameType {
   var count: Int
   
   var identifiable: String {
-    return name+gender
+    return name+":"+gender
   }
   
   public init(_ name: String, _ gender: String, _ count: Int) {
@@ -43,3 +43,10 @@ extension NameType: CustomStringConvertible {
     return "\(name):\(gender):\(count)"
   }
 }
+
+extension NameType: LoggingStringConvertable {
+  public var loggingDescription: String {
+    return "NameType(\(name):\(gender):\(count))"
+  }
+}
+

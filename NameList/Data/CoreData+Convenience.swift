@@ -44,7 +44,7 @@ extension NSManagedObjectContext {
      Handles save error by presenting an alert.
      */
     private func handleSavingError(_ error: Error, contextualInfo: ContextSaveContextualInfo) {
-        print("Context saving error: \(error)")
+        log.error("Context saving error: \(error)")
         
         DispatchQueue.main.async {
             guard let window = UIApplication.shared.delegate?.window,
