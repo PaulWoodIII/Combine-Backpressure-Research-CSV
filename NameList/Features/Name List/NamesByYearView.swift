@@ -8,61 +8,133 @@
 
 import SwiftUI
 import CoreData
+import Combine
+
 struct NamesByYearView: View {
   
   @EnvironmentObject var coreDataStack: CoreDataStack
   @Environment(\.managedObjectContext) var managedObjectContext
-  @ObservedObject var year: YearOfBirth
   @EnvironmentObject var importer: NameDatabaseImporter
+  
+  @ObservedObject var year: YearOfBirth
   var years: FetchRequest<CountForNameByYear>
-  var ascending: Binding<Bool>
-
-  init(year: YearOfBirth,
-       years: FetchRequest<CountForNameByYear>,
-       ascending: Binding<Bool>) {
-    self.year = year
-    self.years = years
-    self.ascending = ascending
-  }
+  @Binding var ascending: Bool
   
   var body: some View {
     VStack {
-      NamesByYearCollectionView(year: year, context: managedObjectContext)
+      HStack {
+        Text("Total Names: \(years.wrappedValue.count)")
+        Text("Sort Order: \($ascending.wrappedValue ? "Ascending" : "Decending")")
+      }
+      
+      List(years.wrappedValue) { count in
+        HStack {
+          VStack(alignment: .leading) {
+            Text(count.name?.name ?? "" ).font(.headline)
+            Text("\(count.name?.gender == "F" ? "👩" : "👨")").font(.caption)
+          }
+          Spacer()
+          Text("\(count.count)")
+        }
+      }
     }
-    .navigationBarItems(leading: Button(action: {
-      self.ascending.wrappedValue.toggle()
-    }, label: { Text("Toggle") }))
-    .navigationBarItems(trailing: Text("Total Names: \(years.wrappedValue.count)"))
-    .navigationBarTitle(Text("Names from \(year.year ?? "")") )
-    .onAppear {
-      self.importer.startParsing(year: self.year)
+    .navigationBarItems(trailing: Button(action: {
+            self.ascending.toggle()
+    }, label: { Text("Toggle Sort") }))
+      .navigationBarTitle(Text("Names from \(year.year ?? "")") )
+      .onAppear {
+        self.importer.startParsing(year: self.year)
     }
     
   }
 }
 
-struct FetchedResultContainer: View {
+struct FetchedResultWidget: View {
   
   @Environment(\.managedObjectContext) var managedObjectContext
   @ObservedObject var year: YearOfBirth
-  var years: FetchRequest<CountForNameByYear>
-  var ascending: State<Bool>
+  var ascendingPublisher = CurrentValueSubject<Bool, Never>(true)
   
-  init(year: YearOfBirth, ascending: Bool = true) {
+  private let view: SwiftUI.State<NamesByYearView>
+  private let viewPublisher: AnyPublisher<NamesByYearView, Never>
+  
+  var ascending: Binding<Bool>
+  
+  public init(year: YearOfBirth) {
     self.year = year
-    self.ascending = State(initialValue: true)
-    let request = CountForNameByYear.fetchRequest(forYear: year, ascending: ascending)
+    let request = CountForNameByYear.fetchRequest(forYear: year,
+                                                  ascending: false)
     let fetchRequest = FetchRequest<CountForNameByYear>(fetchRequest: request)
-    self.years = fetchRequest
+    
+    let ascendingPublisher = CurrentValueSubject<Bool, Never>(true)
+    self.ascendingPublisher = ascendingPublisher
+    let ascending = Binding(
+      get: {
+        ascendingPublisher.value
+    },
+      set: {
+        ascendingPublisher.send($0)
+    })
+    self.ascending = ascending
+    
+    self.view = SwiftUI.State(initialValue:
+      NamesByYearView(year: year, years: fetchRequest, ascending: ascending)
+    )
+    
+    self.viewPublisher = ascendingPublisher.dropFirst()
+      .map { value in
+        let request = CountForNameByYear.fetchRequest(forYear: year,
+                                                      ascending: value)
+        let fetchRequest = FetchRequest<CountForNameByYear>(fetchRequest: request)
+        return NamesByYearView(year: year,
+                               years: fetchRequest,
+                               ascending: ascending)
+    }
+    .eraseToAnyPublisher()
   }
   
-  var body: some View {
-    return NamesByYearView(year: self.year,
-                           years: self.years,
-                           ascending: self.ascending.binding)
+  public var body: some View {
+    return view.value.bind(viewPublisher, to: view.binding)
   }
 }
 
+//struct FetchedResultContainer: View {
+//
+//  @Environment(\.managedObjectContext) var managedObjectContext
+//  @ObservedObject var year: YearOfBirth
+//  var ascending: State<Bool>
+//
+//  init(year: YearOfBirth) {
+//    self.year = year
+//    self.ascending = State(initialValue: false)
+//  }
+//
+//  var body: some View {
+//    return NamesByYearView(year: self.year,
+//                           years: self.years())
+//  }
+//
+//  func years() -> FetchRequest<CountForNameByYear> {
+//        let request = CountForNameByYear.fetchRequest(forYear: year,
+//                                           ascending: ascending.value)
+//    let fetchRequest = FetchRequest<CountForNameByYear>(fetchRequest: request)
+//    return fetchRequest
+//  }
+//}
+
+
+
+
+extension View {
+  func bind<P: Publisher, Value>(
+    _ publisher: P,
+    to binding: Binding<Value>
+  ) -> some View where P.Failure == Never, P.Output == Value {
+    return onReceive(publisher) { value in
+      binding.value = value
+    }
+  }
+}
 //#if DEBUG
 //struct ContentView_Previews: PreviewProvider {
 //  @Environment(\.managedObjectContext) var managedObjectContext
