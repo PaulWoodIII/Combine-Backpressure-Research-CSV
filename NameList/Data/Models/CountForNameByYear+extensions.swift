@@ -45,9 +45,9 @@ extension CountForNameByYear {
     }
   }
   
-  static func fetchRequest(forYear year: YearOfBirth) -> NSFetchRequest<CountForNameByYear> {
+  static func fetchRequest(forYear year: YearOfBirth, ascending: Bool = true) -> NSFetchRequest<CountForNameByYear> {
     let request: NSFetchRequest<CountForNameByYear> = CountForNameByYear.fetchRequest()
-    request.sortDescriptors = [NSSortDescriptor(key: "count", ascending: false)]
+    request.sortDescriptors = [NSSortDescriptor(key: "count", ascending: ascending)]
     request.predicate = NSPredicate(format: "%K = %@", Schema.CountForNameByYear.yearOfBirth.rawValue, year)
     return request
   }
