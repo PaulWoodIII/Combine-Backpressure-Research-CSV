@@ -39,7 +39,7 @@ struct NamesByYearView: View {
       }
     }
     .navigationBarItems(trailing: Button(action: {
-            self.ascending.toggle()
+      self.ascending.toggle()
     }, label: { Text("Toggle Sort") }))
       .navigationBarTitle(Text("Names from \(year.year ?? "")") )
       .onAppear {
@@ -83,9 +83,12 @@ struct FetchedResultWidget: View {
     
     self.viewPublisher = ascendingPublisher.dropFirst()
       .map { value in
-        let request = CountForNameByYear.fetchRequest(forYear: year,
-                                                      ascending: value)
-        let fetchRequest = FetchRequest<CountForNameByYear>(fetchRequest: request)
+        let fetchRequest = FetchRequest<CountForNameByYear>(
+          entity: CountForNameByYear.entity(),
+          sortDescriptors: [NSSortDescriptor(key: "count", ascending: value)],
+          predicate: NSPredicate(format: "%K = %@",
+                                 Schema.CountForNameByYear.yearOfBirth.rawValue,
+                                 year))
         return NamesByYearView(year: year,
                                years: fetchRequest,
                                ascending: ascending)
