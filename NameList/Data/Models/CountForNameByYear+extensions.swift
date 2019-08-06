@@ -45,10 +45,15 @@ extension CountForNameByYear {
     }
   }
   
-  static func fetchController(forYear: YearOfBirth, inContext context: NSManagedObjectContext) -> NSFetchedResultsController<CountForNameByYear> {
+  static func fetchRequest(forYear year: YearOfBirth) -> NSFetchRequest<CountForNameByYear> {
     let request: NSFetchRequest<CountForNameByYear> = CountForNameByYear.fetchRequest()
     request.sortDescriptors = [NSSortDescriptor(key: "count", ascending: false)]
-    request.predicate = NSPredicate(format: "%K = %@", Schema.CountForNameByYear.yearOfBirth.rawValue, forYear)
+    request.predicate = NSPredicate(format: "%K = %@", Schema.CountForNameByYear.yearOfBirth.rawValue, year)
+    return request
+  }
+  
+  static func fetchController(forYear year: YearOfBirth, inContext context: NSManagedObjectContext) -> NSFetchedResultsController<CountForNameByYear> {
+    let request = fetchRequest(forYear: year)
     let controller = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
     return controller
   }
