@@ -94,11 +94,7 @@ class NameDatabaseImporter: ObservableObject {
     cancelParse = self.createNames(year: syncYear)
       .subscribe(on: bgq)
       .receive(on: bgq)
-      .collect(1000)
-      .handleEvents(receiveOutput: { _ in
-        self.syncContext.save(with: .batchAddNames)
-      })
-      .delay(for: 0.25, scheduler: DispatchQueue.main)
+      .collect(100)
       .singleSink(receiveCompletion: { (complete: Subscribers.Completion<NameDatabaseImporter.NameDatabaseImportError>) in
         self.syncContext.save(with: .batchAddNames)
       }, receiveValue: { _ in

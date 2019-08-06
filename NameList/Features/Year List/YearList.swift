@@ -25,7 +25,8 @@ struct YearList: View {
             Text(year.year ?? "NaN")
           }
         }
-        }.navigationBarTitle("American Names")
+      }
+      .navigationBarTitle("American Names")
       .navigationBarItems(trailing: Button(
         action: importer.startParsing,
         label: { Text("Parse") }

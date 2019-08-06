@@ -23,6 +23,7 @@ struct ContentView: View {
     .onAppear {
       self.importer.startParsing(year: self.year)
     }
+
   }
 }
 
