@@ -37,11 +37,13 @@ struct NamesByYearView: View {
           Text("\(count.count)")
         }
       }
-    }
-    .navigationBarItems(trailing: Button(action: {
-      self.ascending.toggle()
-    }, label: { Text("Toggle Sort") }))
-      .navigationBarTitle(Text("Names from \(year.year ?? "")") )
+    }.navigationBarItems(trailing:
+      Button(
+        action: {
+          self.ascending.toggle()
+      },
+        label: { Text("Toggle Sort") }
+    )).navigationBarTitle(Text("Names from \(year.year ?? "")") )
       .onAppear {
         self.importer.startParsing(year: self.year)
     }
@@ -53,21 +55,23 @@ struct FetchedResultWidget: View {
   
   @Environment(\.managedObjectContext) var managedObjectContext
   @ObservedObject var year: YearOfBirth
-  var ascendingPublisher = CurrentValueSubject<Bool, Never>(true)
+  var ascendingPublisher: CurrentValueSubject<Bool, Never>
+  var fetchRequestPublisher: PassthroughSubject<(NSFetchRequest<CountForNameByYear>, NSManagedObjectContext), Never>
+  var debugPublisher: AnyPublisher<Void, Never>
   
   private let view: SwiftUI.State<NamesByYearView>
   private let viewPublisher: AnyPublisher<NamesByYearView, Never>
   
   var ascending: Binding<Bool>
   
-  public init(year: YearOfBirth) {
-    self.year = year
-    let request = CountForNameByYear.fetchRequest(forYear: year,
-                                                  ascending: false)
-    let fetchRequest = FetchRequest<CountForNameByYear>(fetchRequest: request)
+  public init(year: YearOfBirth, context: NSManagedObjectContext) {
     
-    let ascendingPublisher = CurrentValueSubject<Bool, Never>(true)
+    self.year = year
+    let fetchRequestPublisher = PassthroughSubject<(NSFetchRequest<CountForNameByYear>, NSManagedObjectContext), Never>()
+    self.fetchRequestPublisher = fetchRequestPublisher
+    let ascendingPublisher = CurrentValueSubject<Bool, Never>(false)
     self.ascendingPublisher = ascendingPublisher
+    
     let ascending = Binding(
       get: {
         ascendingPublisher.value
@@ -77,27 +81,55 @@ struct FetchedResultWidget: View {
     })
     self.ascending = ascending
     
+    func debugFetch(request: NSFetchRequest<CountForNameByYear>,
+                    context: NSManagedObjectContext) {
+      context.performAndWait {
+        if let results = try? request.execute() {
+          log.verbose(results)
+        }
+      }
+    }
+    
+    func render(year: YearOfBirth, ascendingValue: Bool, context: NSManagedObjectContext) -> NamesByYearView {
+      let request = CountForNameByYear.fetchRequest(forYear: year,
+                                                    ascending: ascendingValue)
+      let fetchRequest = FetchRequest<CountForNameByYear>(fetchRequest: request)
+      fetchRequestPublisher.send((request, context))
+      return NamesByYearView(year: year, years: fetchRequest, ascending: ascending)
+    }
+    
     self.view = SwiftUI.State(initialValue:
-      NamesByYearView(year: year, years: fetchRequest, ascending: ascending)
+      render(year: year, ascendingValue: false, context: context)
     )
     
-    self.viewPublisher = ascendingPublisher.dropFirst()
+    self.viewPublisher = ascendingPublisher
+      .dropFirst()
       .map { value in
-        let fetchRequest = FetchRequest<CountForNameByYear>(
-          entity: CountForNameByYear.entity(),
-          sortDescriptors: [NSSortDescriptor(key: "count", ascending: value)],
-          predicate: NSPredicate(format: "%K = %@",
-                                 Schema.CountForNameByYear.yearOfBirth.rawValue,
-                                 year))
-        return NamesByYearView(year: year,
-                               years: fetchRequest,
-                               ascending: ascending)
-    }
-    .eraseToAnyPublisher()
+        return render(year: year, ascendingValue: value, context: context)
+    }.eraseToAnyPublisher()
+    
+    debugPublisher = fetchRequestPublisher.map({ (v, context) in
+      debugFetch(request: v, context: context)
+      print(v)
+      }).eraseToAnyPublisher()
   }
   
   public var body: some View {
     return view.value.bind(viewPublisher, to: view.binding)
+      .onReceive(debugPublisher) { _ in
+      print("")
+    }
+  }
+}
+
+extension View {
+  func bind<P: Publisher, Value>(
+    _ publisher: P,
+    to binding: Binding<Value>
+  ) -> some View where P.Failure == Never, P.Output == Value {
+    return onReceive(publisher) { value in
+      binding.value = value
+    }
   }
 }
 
@@ -125,19 +157,6 @@ struct FetchedResultWidget: View {
 //  }
 //}
 
-
-
-
-extension View {
-  func bind<P: Publisher, Value>(
-    _ publisher: P,
-    to binding: Binding<Value>
-  ) -> some View where P.Failure == Never, P.Output == Value {
-    return onReceive(publisher) { value in
-      binding.value = value
-    }
-  }
-}
 //#if DEBUG
 //struct ContentView_Previews: PreviewProvider {
 //  @Environment(\.managedObjectContext) var managedObjectContext
