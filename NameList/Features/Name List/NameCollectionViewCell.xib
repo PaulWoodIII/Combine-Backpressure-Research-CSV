@@ -34,6 +34,12 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="4vR-za-U1h">
+                        <rect key="frame" x="0.0" y="48" width="395" height="2"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="2" id="D6A-x7-QUV"/>
+                        </constraints>
+                    </progressView>
                 </subviews>
             </view>
             <color key="backgroundColor" systemColor="secondarySystemGroupedBackgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -44,8 +50,11 @@
                 <constraint firstItem="WMg-qO-nva" firstAttribute="firstBaseline" secondItem="z1K-xl-gvb" secondAttribute="firstBaseline" id="LwP-QR-VLh"/>
                 <constraint firstItem="z1K-xl-gvb" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="LzH-qk-2cy"/>
                 <constraint firstItem="xeS-4W-hE8" firstAttribute="leading" secondItem="z1K-xl-gvb" secondAttribute="trailing" constant="10" id="MyK-cB-1iw"/>
+                <constraint firstItem="4vR-za-U1h" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="PFY-PH-AM7"/>
                 <constraint firstItem="xeS-4W-hE8" firstAttribute="firstBaseline" secondItem="z1K-xl-gvb" secondAttribute="firstBaseline" id="WYV-BF-j4m"/>
+                <constraint firstAttribute="bottom" secondItem="4vR-za-U1h" secondAttribute="bottom" id="Zma-hW-Hb3"/>
                 <constraint firstAttribute="bottom" secondItem="z1K-xl-gvb" secondAttribute="bottom" constant="14" id="d0P-3w-jge"/>
+                <constraint firstAttribute="trailing" secondItem="4vR-za-U1h" secondAttribute="trailing" id="fkU-0n-kPG"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <size key="customSize" width="395" height="50"/>
@@ -54,7 +63,7 @@
                 <outlet property="genderLabel" destination="z1K-xl-gvb" id="25Z-9O-SeM"/>
                 <outlet property="nameLabel" destination="xeS-4W-hE8" id="fCK-Eq-fvS"/>
             </connections>
-            <point key="canvasLocation" x="387.68115942028987" y="141.29464285714286"/>
+            <point key="canvasLocation" x="-436.95652173913049" y="101.78571428571428"/>
         </collectionViewCell>
     </objects>
 </document>

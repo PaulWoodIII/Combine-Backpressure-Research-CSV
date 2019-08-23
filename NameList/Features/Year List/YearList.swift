@@ -21,7 +21,7 @@ struct YearList: View {
       VStack {
         Text("Provided by Data.gov and Social Security records").font(.subheadline).lineLimit(nil)
         List(years) { (year: YearOfBirth) in
-          NavigationLink(destination: FetchedResultWidget(year: year, context: self.managedObjectContext)) {
+          NavigationLink(destination: NamesByYearView(year: year)) {
             Text(year.year ?? "NaN")
           }
         }

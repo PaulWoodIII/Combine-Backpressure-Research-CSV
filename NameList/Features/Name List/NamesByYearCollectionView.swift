@@ -10,14 +10,11 @@ import SwiftUI
 import CoreData
 
 class NamesByYearCollectionViewCoordinator: NSObject, NSFetchedResultsControllerDelegate {
-  
-  var dataSource: UICollectionViewDiffableDataSourceReference!
+  var dataSource: UICollectionViewDiffableDataSource<Section, NSManagedObjectID>!
   var fetchedResultsController: NSFetchedResultsController<CountForNameByYear>!
-  
   enum Section: String, CaseIterable {
     case main
   }
-  
   init(context: NSManagedObjectContext,
        year: YearOfBirth) {
     super.init()
@@ -25,18 +22,13 @@ class NamesByYearCollectionViewCoordinator: NSObject, NSFetchedResultsController
     controller.delegate = self
     self.fetchedResultsController = controller
   }
-  
   func setup(collectionView: UICollectionView) {
-    
-    let ds = UICollectionViewDiffableDataSourceReference(
-      collectionView: collectionView
-    ) { (collectionView, indexPath, someObject) -> UICollectionViewCell? in
+    let ds = UICollectionViewDiffableDataSource<Section, NSManagedObjectID>(collectionView: collectionView) { (collectionView, indexPath, countID) -> UICollectionViewCell? in
       let cell = collectionView.dequeueReusableCell(
         withReuseIdentifier: NameCollectionViewCell.reuseIdentifier,
         for: indexPath) as! NameCollectionViewCell
       let moc = self.fetchedResultsController.managedObjectContext
-      guard let moID = someObject as? NSManagedObjectID,
-        let count = try? moc.existingObject(with: moID) as? CountForNameByYear else {
+      guard let count = try? moc.existingObject(with: countID) as? CountForNameByYear else {
           return cell
       }
       cell.nameLabel.text = count.name?.name ?? "NAN"
@@ -44,15 +36,13 @@ class NamesByYearCollectionViewCoordinator: NSObject, NSFetchedResultsController
       cell.countLabel.text = "\(count.count)"
       return cell
     }
-    ds.applySnapshot(NSDiffableDataSourceSnapshotReference.init(), animatingDifferences: false)
     collectionView.dataSource = ds
     self.dataSource = ds
     try! self.fetchedResultsController.performFetch()
   }
-  
-  func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-                  didChangeContentWith ref: NSDiffableDataSourceSnapshotReference) {
-    dataSource.applySnapshot(ref, animatingDifferences: true)
+  func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
+    let snap = snapshot as NSDiffableDataSourceSnapshot<Section, NSManagedObjectID>
+    dataSource.apply(snap, animatingDifferences: true)
   }
 }
 
